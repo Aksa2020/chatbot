@@ -39,8 +39,8 @@ if upload_pdf is not None and st.session_state['vectorstore'] is None:
         st.session_state['retriever'] = vectorstore.as_retriever(search_kwargs={"k": 3})
         st.success("Vector DB Created")
 
-llm = OllamaLLM(model="llama2")
-
+#llm = OllamaLLM(model="llama2")
+llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 if st.session_state['retriever'] is not None:
     qa_chain = ConversationalRetrievalChain.from_llm(llm=llm, retriever = st.session_state['retriever'], memory = st.session_state['memory'], return_source_documents= False)
     user_question = st.text_input("Ask your question:", key='text')
