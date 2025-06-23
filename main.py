@@ -25,7 +25,11 @@ if 'retriever' not in st.session_state:
     st.session_state['retriever'] = None
 
 upload_pdf = st.file_uploader("Upload the PDF file", type=["pdf"], key='upload_pdf')
-embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+#embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+embedding_model = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
+    model_kwargs={"device": "cpu"}  # 🔧 Force load directly on CPU
+)
 
 if upload_pdf is not None and st.session_state['vectorstore'] is None:
     with st.spinner("Loading PDF and creating vector DB...."):
