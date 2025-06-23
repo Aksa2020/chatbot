@@ -49,7 +49,7 @@ if st.session_state['retriever'] is not None:
         with st.spinner("Thinking...."):
             result = qa_chain.invoke({"question": user_question})
             st.markdown(f"**You:** {user_question}")
-            st.markdown(f"**Bot:** {result["answer"]}")
+            st.markdown(f"**Bot:** {result['answer']}")
 
 def del_vectordb(path):
     if os.path.exists(path):
