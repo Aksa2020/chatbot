@@ -5,5 +5,4 @@ langchain-openai
 openai
 faiss-cpu
 pypdf
-sentence-transformers==2.5.1
-torch==2.2.0
+
