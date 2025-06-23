@@ -25,8 +25,7 @@ if 'retriever' not in st.session_state:
     st.session_state['retriever'] = None
 
 upload_pdf = st.file_uploader("Upload the PDF file", type=["pdf"], key='upload_pdf')
-#embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-embedding_model = OpenAIEmbeddings()
+embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 if upload_pdf is not None and st.session_state['vectorstore'] is None:
     with st.spinner("Loading PDF and creating vector DB...."):
@@ -36,37 +35,14 @@ if upload_pdf is not None and st.session_state['vectorstore'] is None:
         st.session_state['pdf_file_path'] = pdf_path
         loader = PyPDFLoader(pdf_path)
         documents = loader.load()
-        #vectorstore = FAISS.from_documents(documents, embedding_model)
-        vectorstore = FAISS.from_documents(documents, embedding_model, chunk_size=50)
-        texts = [doc.page_content for doc in documents]
-        metadatas = [doc.metadata for doc in documents]
-        def safe_embed(batch):
-            for _ in range(3):  # retry up to 3 times
-                try:
-                    return embedding_model.embed_documents(batch)
-                except RateLimitError:
-                    time.sleep(5)
-                    raise Exception("Rate limit hit repeatedly. Try again later.")
-                    # process in batches
-batch_size = 10
-all_embeddings = []
-for i in range(0, len(texts), batch_size):
-    batch = texts[i:i+batch_size]
-    all_embeddings.extend(safe_embed(batch))
-    time.sleep(1)  # to avoid overloading OpenAI
-
-docs = [Document(page_content=texts[i], metadata=metadatas[i]) for i in range(len(texts))]
-
-# Create vectorstore
-from langchain_community.vectorstores.faiss import FAISS
-vectorstore = FAISS.from_embeddings(all_embeddings, docs)
+        vectorstore = FAISS.from_documents(documents, embedding_model)
         vectorstore.save_local(vector_space_dir)
         st.session_state['vectorstore'] = vectorstore
         st.session_state['retriever'] = vectorstore.as_retriever(search_kwargs={"k": 3})
         st.success("Vector DB Created")
 
-#llm = OllamaLLM(model="llama2")
-llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+llm = OllamaLLM(model="llama2")
+
 if st.session_state['retriever'] is not None:
     qa_chain = ConversationalRetrievalChain.from_llm(llm=llm, retriever = st.session_state['retriever'], memory = st.session_state['memory'], return_source_documents= False)
     user_question = st.text_input("Ask your question:", key='text')
@@ -74,7 +50,7 @@ if st.session_state['retriever'] is not None:
         with st.spinner("Thinking...."):
             result = qa_chain.invoke({"question": user_question})
             st.markdown(f"**You:** {user_question}")
-            st.markdown(f"**Bot:** {result['answer']}")
+            st.markdown(f"**Bot:** {result["answer"]}")
 
 def del_vectordb(path):
     if os.path.exists(path):
@@ -97,3 +73,6 @@ if st.button("Clear Session"):
             del st.session_state[key]
     st.success('Session, PDF and VectorDB are cleared')
     st.rerun()
+
+
+
