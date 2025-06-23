@@ -6,4 +6,4 @@ langchain-huggingface
 openai
 faiss-cpu
 pypdf
-
+sentence-transformers
