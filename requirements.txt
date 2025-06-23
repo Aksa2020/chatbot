@@ -1,10 +1,19 @@
+# Streamlit frontend
 streamlit
+
+# LangChain core and integrations
 langchain
 langchain-community
 langchain-openai
 langchain-huggingface
-langchain-ollama
-sentence-transformers
-faiss-cpu
-Pypdf
 
+# Embeddings
+openai
+faiss-cpu
+
+# PDF loading
+pypdf
+sentence-transformers  # Only needed if using HuggingFace locally
+
+# Optional (safe fallback)
+torch==2.2.0
