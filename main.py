@@ -4,6 +4,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_openai import ChatOpenAI
+from langchain_openai import OpenAIEmbeddings
 #from langchain_ollama import OllamaLLM
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
@@ -24,7 +25,8 @@ if 'retriever' not in st.session_state:
     st.session_state['retriever'] = None
 
 upload_pdf = st.file_uploader("Upload the PDF file", type=["pdf"], key='upload_pdf')
-embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+#embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+embedding_model = OpenAIEmbeddings()
 
 if upload_pdf is not None and st.session_state['vectorstore'] is None:
     with st.spinner("Loading PDF and creating vector DB...."):
