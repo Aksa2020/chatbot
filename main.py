@@ -50,11 +50,9 @@ if upload_pdf is not None and st.session_state['vectorstore'] is None:
 
 #llm = OllamaLLM(model="llama2")
 #llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
-llm = ChatGroq(
-    groq_api_key=st.secrets["groq_api_key"],
-    model_name="llama3-8b-8192",
-    temperature=0
-)
+llm = ChatGroq(groq_api_key=st.secrets["groq_api_key"],
+               model_name="llama3-8b-8192",
+               temperature=0)
 
 if st.session_state['retriever'] is not None:
     qa_chain = ConversationalRetrievalChain.from_llm(llm=llm, retriever = st.session_state['retriever'], memory = st.session_state['memory'], return_source_documents= False)
