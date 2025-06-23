@@ -38,6 +38,28 @@ if upload_pdf is not None and st.session_state['vectorstore'] is None:
         documents = loader.load()
         #vectorstore = FAISS.from_documents(documents, embedding_model)
         vectorstore = FAISS.from_documents(documents, embedding_model, chunk_size=50)
+        texts = [doc.page_content for doc in documents]
+        metadatas = [doc.metadata for doc in documents]
+        def safe_embed(batch):
+            for _ in range(3):  # retry up to 3 times
+                try:
+                    return embedding_model.embed_documents(batch)
+                except RateLimitError:
+                    time.sleep(5)
+                    raise Exception("Rate limit hit repeatedly. Try again later.")
+                    # process in batches
+batch_size = 10
+all_embeddings = []
+for i in range(0, len(texts), batch_size):
+    batch = texts[i:i+batch_size]
+    all_embeddings.extend(safe_embed(batch))
+    time.sleep(1)  # to avoid overloading OpenAI
+
+docs = [Document(page_content=texts[i], metadata=metadatas[i]) for i in range(len(texts))]
+
+# Create vectorstore
+from langchain_community.vectorstores.faiss import FAISS
+vectorstore = FAISS.from_embeddings(all_embeddings, docs)
         vectorstore.save_local(vector_space_dir)
         st.session_state['vectorstore'] = vectorstore
         st.session_state['retriever'] = vectorstore.as_retriever(search_kwargs={"k": 3})
