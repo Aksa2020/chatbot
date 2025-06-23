@@ -5,6 +5,8 @@ from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_openai import ChatOpenAI
 from groq import Groq
+from langchain_groq import ChatGroq
+from langchain.chains import ConversationalRetrievalChain
 from langchain_openai import OpenAIEmbeddings
 #from langchain_ollama import OllamaLLM
 from langchain.chains import ConversationalRetrievalChain
@@ -16,7 +18,7 @@ if not os.path.exists(vector_space_dir):
     os.mkdir(vector_space_dir)
 
 st.set_page_config(page_title="RAG ChatBot", layout="centered")
-st.title("RAG ChatBot (Langchain + LLaMa2)")
+st.title("RAG ChatBot (Langchain + Groq)")
 
 if 'vectorstore' not in st.session_state:
     st.session_state['vectorstore'] = None
@@ -48,7 +50,12 @@ if upload_pdf is not None and st.session_state['vectorstore'] is None:
 
 #llm = OllamaLLM(model="llama2")
 #llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
-llm = Groq(model="llama3-8b-8192", temperature=0)
+llm = ChatGroq(
+    groq_api_key=st.secrets["groq_api_key"],
+    model_name="llama3-8b-8192",
+    temperature=0
+)
+
 if st.session_state['retriever'] is not None:
     qa_chain = ConversationalRetrievalChain.from_llm(llm=llm, retriever = st.session_state['retriever'], memory = st.session_state['memory'], return_source_documents= False)
     user_question = st.text_input("Ask your question:", key='text')
