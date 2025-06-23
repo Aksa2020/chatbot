@@ -8,4 +8,4 @@ openai
 faiss-cpu
 pypdf
 sentence-transformers
-
+torch
