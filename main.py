@@ -48,7 +48,7 @@ if upload_pdf is not None and st.session_state['vectorstore'] is None:
 
 #llm = OllamaLLM(model="llama2")
 #llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
-llm = groq(model="llama3-8b-8192", temperature=0)
+llm = Groq(model="llama3-8b-8192", temperature=0)
 if st.session_state['retriever'] is not None:
     qa_chain = ConversationalRetrievalChain.from_llm(llm=llm, retriever = st.session_state['retriever'], memory = st.session_state['memory'], return_source_documents= False)
     user_question = st.text_input("Ask your question:", key='text')
