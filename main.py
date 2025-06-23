@@ -36,7 +36,8 @@ if upload_pdf is not None and st.session_state['vectorstore'] is None:
         st.session_state['pdf_file_path'] = pdf_path
         loader = PyPDFLoader(pdf_path)
         documents = loader.load()
-        vectorstore = FAISS.from_documents(documents, embedding_model)
+        #vectorstore = FAISS.from_documents(documents, embedding_model)
+        vectorstore = FAISS.from_documents(documents, embedding_model, chunk_size=50)
         vectorstore.save_local(vector_space_dir)
         st.session_state['vectorstore'] = vectorstore
         st.session_state['retriever'] = vectorstore.as_retriever(search_kwargs={"k": 3})
