@@ -9,3 +9,4 @@ faiss-cpu
 pypdf
 sentence-transformers
 torch
+groq
