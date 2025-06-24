@@ -20,7 +20,7 @@ if not os.path.exists(vector_space_dir):
 
 st.set_page_config(page_title="RAG ChatBot", layout="centered")
 st.title("RAG ChatBot (Langchain + Groq)")
-st.write("CUDA available:", torch.cuda.is_available())
+#st.write("CUDA available:", torch.cuda.is_available())
 
 if 'vectorstore' not in st.session_state:
     st.session_state['vectorstore'] = None
