@@ -12,6 +12,8 @@ from langchain_openai import OpenAIEmbeddings
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 import shutil
+from sentence_transformers import SentenceTransformer
+from langchain.embeddings import HuggingFaceEmbeddings
 
 vector_space_dir = os.path.join(os.getcwd(), "vector_db")
 if not os.path.exists(vector_space_dir):
@@ -29,13 +31,17 @@ if 'retriever' not in st.session_state:
 
 upload_pdf = st.file_uploader("Upload the PDF file", type=["pdf"], key='upload_pdf')
 #embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-embedding_model = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2",
-    model_kwargs={"device": "cpu"}  # 🔧 Force load directly on CPU
-)
-# Add this to move model from meta device safely if needed
-if hasattr(embedding_model.client, 'to_empty') and isinstance(embedding_model.client, Module):
-    embedding_model.client = Module.to_empty(embedding_model.client, device="cpu")
+# embedding_model = HuggingFaceEmbeddings(
+#     model_name="sentence-transformers/all-MiniLM-L6-v2",
+#     model_kwargs={"device": "cpu"}  # 🔧 Force load directly on CPU
+# )
+# # Add this to move model from meta device safely if needed
+# if hasattr(embedding_model.client, 'to_empty') and isinstance(embedding_model.client, Module):
+#     embedding_model.client = Module.to_empty(embedding_model.client, device="cpu")
+sbert_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device='cpu')
+
+# Pass it into LangChain's wrapper
+embedding_model = HuggingFaceEmbeddings(model=sbert_model)
 
 if upload_pdf is not None and st.session_state['vectorstore'] is None:
     with st.spinner("Loading PDF and creating vector DB...."):
