@@ -12,6 +12,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 import shutil
+import torch
 
 vector_space_dir = os.path.join(os.getcwd(), "vector_db")
 if not os.path.exists(vector_space_dir):
@@ -19,6 +20,7 @@ if not os.path.exists(vector_space_dir):
 
 st.set_page_config(page_title="RAG ChatBot", layout="centered")
 st.title("RAG ChatBot (Langchain + Groq)")
+st.write("CUDA available:", torch.cuda.is_available())
 
 if 'vectorstore' not in st.session_state:
     st.session_state['vectorstore'] = None
