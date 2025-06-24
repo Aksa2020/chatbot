@@ -31,7 +31,7 @@ upload_pdf = st.file_uploader("Upload the PDF file", type=["pdf"], key='upload_p
 #embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 embedding_model = HuggingFaceEmbeddings(
     model_name="sentence-transformers/all-MiniLM-L6-v2",
-    model_kwargs={"device": "cpu"}  # 🔧 Force load directly on CPU
+    model_kwargs={"device": -1}  # 🔧 Force load directly on CPU
 )
 
 if upload_pdf is not None and st.session_state['vectorstore'] is None:
