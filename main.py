@@ -3,6 +3,8 @@ import streamlit as st
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
+# ✅ Correct import
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_openai import ChatOpenAI
 from groq import Groq
 from langchain_groq import ChatGroq
@@ -13,9 +15,7 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 import shutil
 from sentence_transformers import SentenceTransformer
-from langchain.embeddings import HuggingFaceEmbeddings
 import torch
-from langchain_huggingface import HuggingFaceEmbeddings
 
 vector_space_dir = os.path.join(os.getcwd(), "vector_db")
 os.makedirs(vector_space_dir, exist_ok=True)
