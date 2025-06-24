@@ -8,7 +8,7 @@ from groq import Groq
 from langchain_groq import ChatGroq
 from langchain.chains import ConversationalRetrievalChain
 from langchain_openai import OpenAIEmbeddings
-#from langchain_ollama import OllamaLLM
+#from langchain_ollama import OllamaLLM#
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 import shutil
