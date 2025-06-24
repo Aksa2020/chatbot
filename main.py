@@ -18,8 +18,10 @@ import torch
 from langchain_huggingface import HuggingFaceEmbeddings
 
 vector_space_dir = os.path.join(os.getcwd(), "vector_db")
-if not os.path.exists(vector_space_dir):
-    os.mkdir(vector_space_dir)
+os.makedirs(vector_space_dir, exist_ok=True)
+
+# if not os.path.exists(vector_space_dir):
+#     os.mkdir(vector_space_dir)
 
 st.set_page_config(page_title="RAG ChatBot", layout="centered")
 st.title("RAG ChatBot (Langchain + Groq)")
