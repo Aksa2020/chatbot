@@ -14,6 +14,8 @@ from langchain.memory import ConversationBufferMemory
 import shutil
 from sentence_transformers import SentenceTransformer
 from langchain.embeddings import HuggingFaceEmbeddings
+import torch
+from langchain_huggingface import HuggingFaceEmbeddings
 
 vector_space_dir = os.path.join(os.getcwd(), "vector_db")
 if not os.path.exists(vector_space_dir):
@@ -38,10 +40,19 @@ upload_pdf = st.file_uploader("Upload the PDF file", type=["pdf"], key='upload_p
 # # Add this to move model from meta device safely if needed
 # if hasattr(embedding_model.client, 'to_empty') and isinstance(embedding_model.client, Module):
 #     embedding_model.client = Module.to_empty(embedding_model.client, device="cpu")
-sbert_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device='cpu')
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Pass it into LangChain's wrapper
-embedding_model = HuggingFaceEmbeddings(model=sbert_model)
+# patching to avoid meta tensor issue
+embedding_model = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
+    model_kwargs={"device": device}
+)
+model_attr = getattr(embedding_model, "model", None)
+if model_attr is not None and hasattr(model_attr, "to_empty"):
+    try:
+        model_attr = torch.nn.Module.to_empty(model_attr, device=device)
+    except Exception as e:
+        print("Warning: Failed to use `to_empty()`:", e)
 
 if upload_pdf is not None and st.session_state['vectorstore'] is None:
     with st.spinner("Loading PDF and creating vector DB...."):
