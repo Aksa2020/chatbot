@@ -56,6 +56,11 @@ llm = ChatGroq(groq_api_key=st.secrets["groq_api_key"],
 
 if st.session_state['retriever'] is not None:
     qa_chain = ConversationalRetrievalChain.from_llm(llm=llm, retriever = st.session_state['retriever'], memory = st.session_state['memory'], return_source_documents= False)
+    if st.session_state['memory'].chat_memory.messages:
+        st.markdown("### Conversation History")
+        for msg in st.session_state['memory'].chat_memory.messages:
+            role = "You" if msg.type == "human" else "Bot"
+            st.markdown(f"**{role}:** {msg.content}")
     user_question = st.text_input("Ask your question:", key='text')
     if user_question:
         with st.spinner("Thinking...."):
