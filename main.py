@@ -33,6 +33,9 @@ embedding_model = HuggingFaceEmbeddings(
     model_name="sentence-transformers/all-MiniLM-L6-v2",
     model_kwargs={"device": "cpu"}  # 🔧 Force load directly on CPU
 )
+# Add this to move model from meta device safely if needed
+if hasattr(embedding_model.client, 'to_empty') and isinstance(embedding_model.client, Module):
+    embedding_model.client = Module.to_empty(embedding_model.client, device="cpu")
 
 if upload_pdf is not None and st.session_state['vectorstore'] is None:
     with st.spinner("Loading PDF and creating vector DB...."):
