@@ -9,5 +9,5 @@ openai
 faiss-cpu
 pypdf
 sentence-transformers
-torch
+torch==2.2.2
 groq
