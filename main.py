@@ -14,9 +14,13 @@ from langchain_openai import OpenAIEmbeddings
 #from langchain_ollama import OllamaLLM
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
+from langchain.memory import ConversationSummaryBufferMemory
 import shutil
 from sentence_transformers import SentenceTransformer
 import torch
+import uuid
+import json
+from datetime import datetime
 
 vector_space_dir = os.path.join(os.getcwd(), "vector_db")
 os.makedirs(vector_space_dir, exist_ok=True)
@@ -27,10 +31,26 @@ os.makedirs(vector_space_dir, exist_ok=True)
 st.set_page_config(page_title="RAG ChatBot", layout="centered")
 st.title("RAG ChatBot (Langchain + Groq)")
 
+# Folder to store sessions
+sessions_dir = os.path.join(os.getcwd(), "chat_sessions")
+os.makedirs(sessions_dir, exist_ok=True)
+
+# Create a unique session ID if not already done
+if 'session_id' not in st.session_state:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    st.session_state['session_id'] = f"session_{timestamp}_{uuid.uuid4().hex[:6]}"
+    st.session_state['chat_messages'] = []
+# Load previous chat if session file exists
+session_path = os.path.join(sessions_dir, f"{st.session_state['session_id']}.json")
+if os.path.exists(session_path):
+    with open(session_path, "r") as f:
+        st.session_state['chat_messages'] = json.load(f)
+
 if 'vectorstore' not in st.session_state:
     st.session_state['vectorstore'] = None
 if 'memory' not in st.session_state:
-    st.session_state['memory'] = ConversationBufferMemory(memory_key = "chat_history", return_messages=True)
+    st.session_state['memory'] = ConversationSummaryBufferMemory(llm=llm,memory_key="chat_history",return_messages=True)
+    #st.session_state['memory'] = ConversationBufferMemory(memory_key = "chat_history", return_messages=True)
 if 'retriever' not in st.session_state:
     st.session_state['retriever'] = None
 if 'chat_messages' not in st.session_state:
@@ -87,14 +107,38 @@ with st.sidebar:
     else:
         st.info("No chat history yet.")
 
+    # 🔽 Add below to show previous session files
+    if st.button("Show Previous Sessions"):
+        st.markdown("### Previous Sessions")
+        for fname in os.listdir(sessions_dir):
+            st.markdown(f"- {fname}")
+
+
+# with st.sidebar:
+#     st.markdown("### Chat History")
+#     if st.session_state['chat_messages']:
+#         for msg in st.session_state['chat_messages']:
+#             role = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
+#             st.markdown(f"**{role}:** {msg['content']}")
+#     else:
+#         st.info("No chat history yet.")
+
 
 if st.session_state['retriever'] is not None:
     qa_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         retriever=st.session_state['retriever'],
         memory=st.session_state['memory'],
-        return_source_documents=False
+        return_source_documents=False,
+        condense_question_llm=llm  # This allows LangChain to rephrase follow-ups
     )
+
+    # qa_chain = ConversationalRetrievalChain.from_llm(
+    #     llm=llm,
+    #     retriever=st.session_state['retriever'],
+    #     memory=st.session_state['memory'],
+    #     return_source_documents=False
+    # )
 
     user_question = st.text_input("Ask your question:", key='text')
     if user_question:
