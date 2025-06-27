@@ -49,7 +49,7 @@ if os.path.exists(session_path):
 if 'vectorstore' not in st.session_state:
     st.session_state['vectorstore'] = None
 if 'memory' not in st.session_state:
-    st.session_state['memory'] = ConversationSummaryBufferMemory(llm=llm,memory_key="chat_history",return_messages=True)
+    st.session_state['memory'] = ConversationSummaryBufferMemory(memory_key="chat_history",return_messages=True)
     #st.session_state['memory'] = ConversationBufferMemory(memory_key = "chat_history", return_messages=True)
 if 'retriever' not in st.session_state:
     st.session_state['retriever'] = None
