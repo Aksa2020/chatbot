@@ -318,20 +318,36 @@ if st.button("Clear Session"):
     st.session_state['memory'].clear()
     st.session_state['retriever'] = None
     st.session_state['vectorstore'] = None
-
-    # DO NOT clear chat_messages
-    # st.session_state['chat_messages'] = []  ← This line is removed/commented
-
+    st.session_state['chat_messages'] = []  # ✅ Clear chat history
+    st.session_state['text'] = ""  # ✅ Clear input box
     del_vectordb(vector_space_dir)
     pdf_p = st.session_state.get('pdf_file_path', None)
     del_uploaded_pdf(pdf_p)
     st.session_state['pdf_file_path'] = None
-    for key in ['upload_pdf', 'text']:
+    for key in ['upload_pdf']:
         if key in st.session_state:
             del st.session_state[key]
+            st.success('Session, PDF, chat, and vector DB are cleared')
+            st.rerun()
 
-    st.success('Session, PDF and VectorDB are cleared (Chat remains!)')
-    st.rerun()
+# if st.button("Clear Session"):
+#     st.session_state['memory'].clear()
+#     st.session_state['retriever'] = None
+#     st.session_state['vectorstore'] = None
+
+#     # DO NOT clear chat_messages
+#     # st.session_state['chat_messages'] = []  ← This line is removed/commented
+
+#     del_vectordb(vector_space_dir)
+#     pdf_p = st.session_state.get('pdf_file_path', None)
+#     del_uploaded_pdf(pdf_p)
+#     st.session_state['pdf_file_path'] = None
+#     for key in ['upload_pdf', 'text']:
+#         if key in st.session_state:
+#             del st.session_state[key]
+
+#     st.success('Session, PDF and VectorDB are cleared (Chat remains!)')
+#     st.rerun()
 
 # if st.button("Clear Session"):
 #     st.session_state['memory'].clear()
