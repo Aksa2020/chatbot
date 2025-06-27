@@ -95,12 +95,10 @@ if upload_pdf is not None and st.session_state['vectorstore'] is None:
 
 #llm = OllamaLLM(model="llama2")
 #llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
-llm = ChatGroq(groq_api_key=st.secrets["groq_api_key"],model_name="llama3-8b-8192")
 llm = ChatGroq(groq_api_key=st.secrets["groq_api_key"],
                model_name="llama3-8b-8192",
                temperature=0,
-               system_message="Use natural conversational tone. Avoid repeating full names unnecessarily. Use pronouns like 'she' or 'he' when context allows.",
-               condense_question_llm=llm)
+               system_message="Use natural conversational tone. Avoid repeating full names unnecessarily. Use pronouns like 'she' or 'he' when context allows.")
 with st.sidebar:
     st.markdown("### Chat History")
     if st.session_state['chat_messages']:
