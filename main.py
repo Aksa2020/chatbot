@@ -162,26 +162,12 @@ with st.sidebar:
 #             st.markdown(f"**{role}:** {msg['content']}")
 #     else:
 #         st.info("No chat history yet.")
-
-
-if st.session_state['retriever'] is not None:
-    qa_chain = ConversationalRetrievalChain.from_llm(
-        llm=llm,
-        retriever=st.session_state['retriever'],
-        memory=st.session_state['memory'],
-        return_source_documents=False,
-        condense_question_llm=llm  # This allows LangChain to rephrase follow-ups
-    )
-    # 👇 Display current session chat history in main area
-    if st.session_state['chat_messages']:
-        st.markdown("### 💬 Current Chat Session")
-        for msg in st.session_state['chat_messages']:
-            role = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
-            st.markdown(f"**{role}:** {msg['content']}")
-
-    user_question = st.text_input("Ask your question:", key='text')
-    if user_question:
-        with st.spinner("Thinking...."):
+# 🔧 Define the callback function for handling the question
+def handle_user_question():
+    user_question = st.session_state['text']
+    if not user_question.strip():
+        return
+        with st.spinner("Thinking..."):
             result = qa_chain.invoke({"question": user_question})
             # Store messages in session
             st.session_state['chat_messages'].append({
@@ -192,15 +178,67 @@ if st.session_state['retriever'] is not None:
                 "role": "bot",
                 "content": result['answer']
             })
-            # ✅ Save chat to file
+            # Save chat to file
             with open(session_path, "w") as f:
                 json.dump(st.session_state['chat_messages'], f, indent=2)
-                # Show latest message
-        st.markdown(f"**You:** {user_question}")
-        st.markdown(f"**Bot:** {result['answer']}")
+                # Clear input for next question
+st.session_state['text'] = ""
+# 🔄 Main logic
+if st.session_state['retriever'] is not None:
+    qa_chain = ConversationalRetrievalChain.from_llm(
+        llm=llm,
+        retriever=st.session_state['retriever'],
+        memory=st.session_state['memory'],
+        return_source_documents=False,
+        condense_question_llm=llm  # Optional: rephrase follow-ups
+    )
+    # 💬 Display current session chat
+    if st.session_state['chat_messages']:
+        st.markdown("### 💬 Current Chat Session")
+        for msg in st.session_state['chat_messages']:
+            role = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
+            st.markdown(f"**{role}:** {msg['content']}")
+            # 🧾 Input box with callback
+st.text_input("Ask your question:", key="text", on_change=handle_user_question)
+
+
+# if st.session_state['retriever'] is not None:
+#     qa_chain = ConversationalRetrievalChain.from_llm(
+#         llm=llm,
+#         retriever=st.session_state['retriever'],
+#         memory=st.session_state['memory'],
+#         return_source_documents=False,
+#         condense_question_llm=llm  # This allows LangChain to rephrase follow-ups
+#     )
+#     # 👇 Display current session chat history in main area
+#     if st.session_state['chat_messages']:
+#         st.markdown("### 💬 Current Chat Session")
+#         for msg in st.session_state['chat_messages']:
+#             role = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
+#             st.markdown(f"**{role}:** {msg['content']}")
+
+#     user_question = st.text_input("Ask your question:", key='text')
+#     if user_question:
+#         with st.spinner("Thinking...."):
+#             result = qa_chain.invoke({"question": user_question})
+#             # Store messages in session
+#             st.session_state['chat_messages'].append({
+#                 "role": "user",
+#                 "content": user_question
+#             })
+#             st.session_state['chat_messages'].append({
+#                 "role": "bot",
+#                 "content": result['answer']
+#             })
+#             # ✅ Save chat to file
+#             with open(session_path, "w") as f:
+#                 json.dump(st.session_state['chat_messages'], f, indent=2)
+#                 # Show latest message
+#         st.markdown(f"**You:** {user_question}")
+#         st.markdown(f"**Bot:** {result['answer']}")
         
-        # Clear the input box for next question
-        st.session_state['text'] = ""
+#         # Clear the input box for next question
+#         st.session_state['text'] = ""
 
 
 
