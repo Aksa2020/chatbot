@@ -135,23 +135,20 @@ if st.session_state['retriever'] is not None:
     user_question = st.text_input("Ask your question:", key='text')
     if user_question:
         with st.spinner("Thinking...."):
-        result = qa_chain.invoke({"question": user_question})
-
-        # Store messages in session
-        st.session_state['chat_messages'].append({
-            "role": "user",
-            "content": user_question
-        })
-        st.session_state['chat_messages'].append({
-            "role": "bot",
-            "content": result['answer']
-        })
-
-        # ✅ Save chat to file
-        with open(session_path, "w") as f:
-            json.dump(st.session_state['chat_messages'], f, indent=2)
-
-        # Show latest message
+            result = qa_chain.invoke({"question": user_question})
+            # Store messages in session
+            st.session_state['chat_messages'].append({
+                "role": "user",
+                "content": user_question
+            })
+            st.session_state['chat_messages'].append({
+                "role": "bot",
+                "content": result['answer']
+            })
+            # ✅ Save chat to file
+            with open(session_path, "w") as f:
+                json.dump(st.session_state['chat_messages'], f, indent=2)
+                # Show latest message
         st.markdown(f"**You:** {user_question}")
         st.markdown(f"**Bot:** {result['answer']}")
 
