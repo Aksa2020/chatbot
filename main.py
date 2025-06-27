@@ -99,26 +99,40 @@ llm = ChatGroq(groq_api_key=st.secrets["groq_api_key"],
                model_name="llama3-8b-8192",
                temperature=0)
 with st.sidebar:
-    st.markdown("### Chat History")
-    # 🔽 Current Session Chat
-    if st.session_state['chat_messages']:
-        for msg in st.session_state['chat_messages']:
-            role = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
-            st.markdown(f"**{role}:** {msg['content']}")
-    else:
-        st.info("No chat history yet.")
-        # 🔽 Dropdown for previous sessions
+    st.markdown("### 💾 View Previous Sessions")
     session_files = [f.replace(".json", "") for f in os.listdir(sessions_dir) if f.endswith(".json")]
-    selected_session = st.selectbox("🔍 View Previous Session", options=["-- Select --"] + session_files)
+    selected_session = st.selectbox("Select a session", options=["-- Select --"] + session_files)
     if selected_session != "-- Select --":
         selected_path = os.path.join(sessions_dir, selected_session + ".json")
         if os.path.exists(selected_path):
             with open(selected_path, "r") as f:
                 prev_msgs = json.load(f)
-                st.markdown(f"### 💾 Chat from `{selected_session}`")
+                st.markdown(f"#### Chat from `{selected_session}`")
                 for msg in prev_msgs:
                     role = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
                     st.markdown(f"**{role}:** {msg['content']}")
+
+# with st.sidebar:
+#     st.markdown("### Chat History")
+#     # 🔽 Current Session Chat
+#     if st.session_state['chat_messages']:
+#         for msg in st.session_state['chat_messages']:
+#             role = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
+#             st.markdown(f"**{role}:** {msg['content']}")
+#     else:
+#         st.info("No chat history yet.")
+#         # 🔽 Dropdown for previous sessions
+#     session_files = [f.replace(".json", "") for f in os.listdir(sessions_dir) if f.endswith(".json")]
+#     selected_session = st.selectbox("🔍 View Previous Session", options=["-- Select --"] + session_files)
+#     if selected_session != "-- Select --":
+#         selected_path = os.path.join(sessions_dir, selected_session + ".json")
+#         if os.path.exists(selected_path):
+#             with open(selected_path, "r") as f:
+#                 prev_msgs = json.load(f)
+#                 st.markdown(f"### 💾 Chat from `{selected_session}`")
+#                 for msg in prev_msgs:
+#                     role = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
+#                     st.markdown(f"**{role}:** {msg['content']}")
 
 # with st.sidebar:
 #     st.markdown("### Chat History")
@@ -158,6 +172,13 @@ if st.session_state['retriever'] is not None:
         return_source_documents=False,
         condense_question_llm=llm  # This allows LangChain to rephrase follow-ups
     )
+    # 👇 Display current session chat history in main area
+    if st.session_state['chat_messages']:
+        st.markdown("### 💬 Current Chat Session")
+        for msg in st.session_state['chat_messages']:
+            role = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
+            st.markdown(f"**{role}:** {msg['content']}")
+
     user_question = st.text_input("Ask your question:", key='text')
     if user_question:
         with st.spinner("Thinking...."):
