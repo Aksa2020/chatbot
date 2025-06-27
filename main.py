@@ -132,6 +132,30 @@ if st.session_state['retriever'] is not None:
         return_source_documents=False,
         condense_question_llm=llm  # This allows LangChain to rephrase follow-ups
     )
+    user_question = st.text_input("Ask your question:", key='text')
+    if user_question:
+        with st.spinner("Thinking...."):
+        result = qa_chain.invoke({"question": user_question})
+
+        # Store messages in session
+        st.session_state['chat_messages'].append({
+            "role": "user",
+            "content": user_question
+        })
+        st.session_state['chat_messages'].append({
+            "role": "bot",
+            "content": result['answer']
+        })
+
+        # ✅ Save chat to file
+        with open(session_path, "w") as f:
+            json.dump(st.session_state['chat_messages'], f, indent=2)
+
+        # Show latest message
+        st.markdown(f"**You:** {user_question}")
+        st.markdown(f"**Bot:** {result['answer']}")
+
+
 
     # qa_chain = ConversationalRetrievalChain.from_llm(
     #     llm=llm,
@@ -140,24 +164,26 @@ if st.session_state['retriever'] is not None:
     #     return_source_documents=False
     # )
 
-    user_question = st.text_input("Ask your question:", key='text')
-    if user_question:
-        with st.spinner("Thinking...."):
-            result = qa_chain.invoke({"question": user_question})
+    # user_question = st.text_input("Ask your question:", key='text')
+    # if user_question:
+    #     with st.spinner("Thinking...."):
+    #         result = qa_chain.invoke({"question": user_question})
 
-            # Store messages in session for sidebar
-            st.session_state['chat_messages'].append({
-                "role": "user",
-                "content": user_question
-            })
-            st.session_state['chat_messages'].append({
-                "role": "bot",
-                "content": result['answer']
-            })
+    #         # Store messages in session for sidebar
+    #         st.session_state['chat_messages'].append({
+    #             "role": "user",
+    #             "content": user_question
+    #         })
+    #         st.session_state['chat_messages'].append({
+    #             "role": "bot",
+    #             "content": result['answer']
+    #         })
 
-            # Display latest interaction
-            st.markdown(f"**You:** {user_question}")
-            st.markdown(f"**Bot:** {result['answer']}")
+    #         # Display latest interaction
+    #         st.markdown(f"**You:** {user_question}")
+    #         st.markdown(f"**Bot:** {result['answer']}")
+
+
 
 # if st.session_state['retriever'] is not None:
 #     qa_chain = ConversationalRetrievalChain.from_llm(
