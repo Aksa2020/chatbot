@@ -182,8 +182,7 @@ def handle_user_question():
         # Save chat to file
         with open(session_path, "w") as f:
             json.dump(st.session_state['chat_messages'], f, indent=2)
-            # Clear input for next question
-st.session_state['text'] = ""
+            st.session_state['text'] = ""
 # 🔄 Main logic
 session_path = os.path.join(sessions_dir, f"{st.session_state['session_id']}.json")
 if st.session_state['retriever'] is not None:
