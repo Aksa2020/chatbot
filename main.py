@@ -14,8 +14,8 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 
 # --- Setup ---
-st.set_page_config(page_title="RAG ChatBot", layout="centered")
-st.title("RAG ChatBot (Langchain + Groq)")
+st.set_page_config(page_title="PDF ChatBot", layout="centered")
+st.title("PDF ChatBot)")
 
 vector_space_dir = os.path.join(os.getcwd(), "vector_db")
 sessions_dir = os.path.join(os.getcwd(), "chat_sessions")
