@@ -7,17 +7,16 @@ import streamlit as st
 from datetime import datetime
 
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_community.vectorstores import Pinecone as LC_Pinecone
+from langchain_community.vectorstores.pgvector import PGVector
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_openai import ChatOpenAI
 from langchain_groq import ChatGroq
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
-from pinecone import Pinecone, ServerlessSpec
 
 # --- Streamlit UI Setup ---
 st.set_page_config(page_title="PDF ChatBot", layout="centered")
-st.title("📄 PDF ChatBot (Pinecone)")
+st.title("📄 PDF ChatBot (Supabase)")
 
 # --- Directories for local sessions ---
 sessions_dir = os.path.join(os.getcwd(), "chat_sessions")
@@ -41,23 +40,9 @@ if os.path.exists(session_path):
     with open(session_path, "r") as f:
         st.session_state['chat_messages'] = json.load(f)
 
-# --- Pinecone Init ---
-api_key = st.secrets["api_key"]
-index_name = st.secrets["index_name"]
-cloud = st.secrets["cloud"]
-region = st.secrets["region"]
-st.write("Pinecone API Key loaded?", "Yes" if st.secrets.get("api_key") else "No")
-
-
-pc = Pinecone(api_key=api_key)
-
-if index_name not in pc.list_indexes().names():
-    pc.create_index(
-        name=index_name,
-        dimension=384,
-        metric="cosine",
-        spec=ServerlessSpec(cloud=cloud, region=region)
-    )
+# --- Supabase PGVector Setup ---
+connection_string = st.secrets["SUPABASE_DB_URL"]  # format: postgres://user:pass@host/db
+collection_name = "documents"  # must match pg table with `embedding vector(...)`
 
 # --- Embedding Model ---
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -66,10 +51,10 @@ embedding_model = HuggingFaceEmbeddings(
     model_kwargs={"device": device}
 )
 
-# --- Upload PDF and Create Pinecone VectorStore ---
+# --- Upload PDF and Create Supabase VectorStore ---
 upload_pdf = st.file_uploader("Upload the PDF file", type=["pdf"], key='upload_pdf')
 if upload_pdf and st.session_state['retriever'] is None:
-    with st.spinner("Loading PDF and indexing..."):
+    with st.spinner("Loading PDF and indexing to Supabase..."):
         pdf_path = os.path.join(os.getcwd(), upload_pdf.name)
         with open(pdf_path, "wb") as f:
             f.write(upload_pdf.getbuffer())
@@ -78,15 +63,15 @@ if upload_pdf and st.session_state['retriever'] is None:
         loader = PyPDFLoader(pdf_path)
         documents = loader.load()
 
-        vectordb = LC_Pinecone.from_documents(
-            documents=documents,
-            embedding=embedding_model,
-            index_name=index_name,
-            namespace=st.session_state['session_id']
+        vectordb = PGVector(
+            connection_string=connection_string,
+            embedding_function=embedding_model,
+            collection_name=collection_name,
+            distance_strategy="cosine"
         )
-
+        vectordb.add_documents(documents)
         st.session_state['retriever'] = vectordb.as_retriever(search_kwargs={"k": 3})
-        st.success("Vector DB created and stored in Pinecone.")
+        st.success("Vector DB created and stored in Supabase.")
 
 # --- Load Groq LLM ---
 llm = ChatGroq(
