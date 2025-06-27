@@ -6,6 +6,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 # ✅ Correct import
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_openai import ChatOpenAI
+from langchain.schema import AIMessage, HumanMessage
 from groq import Groq
 from langchain_groq import ChatGroq
 from langchain.chains import ConversationalRetrievalChain
