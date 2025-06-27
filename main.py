@@ -163,6 +163,14 @@ with st.sidebar:
 #     else:
 #         st.info("No chat history yet.")
 # 🔧 Define the callback function for handling the question
+if st.session_state['retriever'] is not None:
+    qa_chain = ConversationalRetrievalChain.from_llm(
+        llm=llm,
+        retriever=st.session_state['retriever'],
+        memory=st.session_state['memory'],
+        return_source_documents=False,
+        condense_question_llm=llm  # Optional: rephrase follow-ups
+    )
 def handle_user_question():
     user_question = st.session_state['text']
     if not user_question.strip():
@@ -185,14 +193,7 @@ def handle_user_question():
             st.session_state['text'] = ""
 # 🔄 Main logic
 session_path = os.path.join(sessions_dir, f"{st.session_state['session_id']}.json")
-if st.session_state['retriever'] is not None:
-    qa_chain = ConversationalRetrievalChain.from_llm(
-        llm=llm,
-        retriever=st.session_state['retriever'],
-        memory=st.session_state['memory'],
-        return_source_documents=False,
-        condense_question_llm=llm  # Optional: rephrase follow-ups
-    )
+
     # 💬 Display current session chat
     if st.session_state['chat_messages']:
         st.markdown("### 💬 Current Chat Session")
