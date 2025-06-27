@@ -100,20 +100,42 @@ llm = ChatGroq(groq_api_key=st.secrets["groq_api_key"],
                temperature=0)
 with st.sidebar:
     st.markdown("### Chat History")
+    # 🔽 Current Session Chat
     if st.session_state['chat_messages']:
         for msg in st.session_state['chat_messages']:
             role = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
             st.markdown(f"**{role}:** {msg['content']}")
     else:
         st.info("No chat history yet.")
+        # 🔽 Dropdown for previous sessions
+    session_files = [f.replace(".json", "") for f in os.listdir(sessions_dir) if f.endswith(".json")]
+    selected_session = st.selectbox("🔍 View Previous Session", options=["-- Select --"] + session_files)
+    if selected_session != "-- Select --":
+        selected_path = os.path.join(sessions_dir, selected_session + ".json")
+        if os.path.exists(selected_path):
+            with open(selected_path, "r") as f:
+                prev_msgs = json.load(f)
+                st.markdown(f"### 💾 Chat from `{selected_session}`")
+                for msg in prev_msgs:
+                    role = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
+                    st.markdown(f"**{role}:** {msg['content']}")
 
-    # 🔽 Add below to show previous session files
-    if st.button("Show Previous Sessions"):
-        st.markdown("### Previous Sessions")
-        for fname in os.listdir(sessions_dir):
-            if fname.endswith(".json"):
-                session_name = fname.replace(".json", "")
-                st.markdown(f"- {session_name}")
+# with st.sidebar:
+#     st.markdown("### Chat History")
+#     if st.session_state['chat_messages']:
+#         for msg in st.session_state['chat_messages']:
+#             role = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
+#             st.markdown(f"**{role}:** {msg['content']}")
+#     else:
+#         st.info("No chat history yet.")
+
+#     # 🔽 Add below to show previous session files
+#     if st.button("Show Previous Sessions"):
+#         st.markdown("### Previous Sessions")
+#         for fname in os.listdir(sessions_dir):
+#             if fname.endswith(".json"):
+#                 session_name = fname.replace(".json", "")
+#                 st.markdown(f"- {session_name}")
         # for fname in os.listdir(sessions_dir):
         #     st.markdown(f"- {fname}")
 
