@@ -198,6 +198,9 @@ if st.session_state['retriever'] is not None:
                 # Show latest message
         st.markdown(f"**You:** {user_question}")
         st.markdown(f"**Bot:** {result['answer']}")
+        
+        # Clear the input box for next question
+        st.session_state['text'] = ""
 
 
 
