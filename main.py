@@ -321,7 +321,7 @@ if st.button("Clear Session"):
     st.session_state['retriever'] = None
     st.session_state['vectorstore'] = None
     st.session_state['chat_messages'] = []  # ✅ Clear chat history
-    st.session_state['text'] = ""  # ✅ Clear input box
+    #st.session_state['text'] = ""  # ✅ Clear input box
     del_vectordb(vector_space_dir)
     pdf_p = st.session_state.get('pdf_file_path', None)
     del_uploaded_pdf(pdf_p)
