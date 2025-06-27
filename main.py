@@ -14,7 +14,7 @@ from langchain_openai import OpenAIEmbeddings
 #from langchain_ollama import OllamaLLM
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
-from langchain.memory import ConversationSummaryBufferMemory
+#from langchain.memory import ConversationSummaryBufferMemory
 import shutil
 from sentence_transformers import SentenceTransformer
 import torch
@@ -49,8 +49,8 @@ if os.path.exists(session_path):
 if 'vectorstore' not in st.session_state:
     st.session_state['vectorstore'] = None
 if 'memory' not in st.session_state:
-    st.session_state['memory'] = ConversationSummaryBufferMemory(memory_key="chat_history",return_messages=True)
-    #st.session_state['memory'] = ConversationBufferMemory(memory_key = "chat_history", return_messages=True)
+    #st.session_state['memory'] = ConversationSummaryBufferMemory(memory_key="chat_history",return_messages=True)
+    st.session_state['memory'] = ConversationBufferMemory(memory_key = "chat_history", return_messages=True)
 if 'retriever' not in st.session_state:
     st.session_state['retriever'] = None
 if 'chat_messages' not in st.session_state:
