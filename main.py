@@ -111,7 +111,11 @@ with st.sidebar:
     if st.button("Show Previous Sessions"):
         st.markdown("### Previous Sessions")
         for fname in os.listdir(sessions_dir):
-            st.markdown(f"- {fname}")
+            if fname.endswith(".json"):
+                session_name = fname.replace(".json", "")
+                st.markdown(f"- {session_name}")
+        # for fname in os.listdir(sessions_dir):
+        #     st.markdown(f"- {fname}")
 
 
 # with st.sidebar:
