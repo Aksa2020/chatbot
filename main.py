@@ -139,15 +139,36 @@ def del_uploaded_pdf(path):
         os.remove(path)
 
 if st.button("Clear Session"):
-    st.session_state['memory'].clear()
-    st.session_state['retriever'] = None
-    st.session_state['vectorstore'] = None
-    st.session_state['chat_messages'] = []
+    # Clear LangChain memory
+    if 'memory' in st.session_state:
+        st.session_state['memory'].clear()
+        # Clear chat history and input
+        for key in ['chat_messages', 'text', 'retriever', 'vectorstore', 'pdf_file_path', 'upload_pdf']:
+            if key in st.session_state:
+                del st.session_state[key]
+                # Delete vector DB directory
     del_vectordb(vector_space_dir)
-    del_uploaded_pdf(st.session_state.get('pdf_file_path', None))
-    st.session_state['pdf_file_path'] = None
-    for key in ['upload_pdf']:
-        if key in st.session_state:
-            del st.session_state[key]
-    st.success("Session, PDF, chat, and vector DB are cleared")
+    # Delete uploaded PDF if present
+    pdf_p = st.session_state.get('pdf_file_path')
+    if pdf_p:
+        del_uploaded_pdf(pdf_p)
+        # ✅ Reset session_id and create a fresh chat log
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    st.session_state['session_id'] = f"session_{timestamp}_{uuid.uuid4().hex[:6]}"
+    st.session_state['chat_messages'] = []
+    st.success("Session, PDF, and Vector DB cleared.")
     st.rerun()
+
+# if st.button("Clear Session"):
+#     st.session_state['memory'].clear()
+#     st.session_state['retriever'] = None
+#     st.session_state['vectorstore'] = None
+#     st.session_state['chat_messages'] = []
+#     del_vectordb(vector_space_dir)
+#     del_uploaded_pdf(st.session_state.get('pdf_file_path', None))
+#     st.session_state['pdf_file_path'] = None
+#     for key in ['upload_pdf']:
+#         if key in st.session_state:
+#             del st.session_state[key]
+#     st.success("Session, PDF, chat, and vector DB are cleared")
+#     st.rerun()
