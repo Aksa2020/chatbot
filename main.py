@@ -46,6 +46,8 @@ api_key = st.secrets["api_key"]
 index_name = st.secrets["index_name"]
 cloud = st.secrets["cloud"]
 region = st.secrets["region"]
+st.write("Pinecone API Key loaded?", "Yes" if st.secrets.get("api_key") else "No")
+
 
 pc = Pinecone(api_key=api_key)
 
