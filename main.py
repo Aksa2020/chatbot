@@ -167,23 +167,25 @@ def handle_user_question():
     user_question = st.session_state['text']
     if not user_question.strip():
         return
-        with st.spinner("Thinking..."):
-            result = qa_chain.invoke({"question": user_question})
-            # Store messages in session
-            st.session_state['chat_messages'].append({
-                "role": "user",
-                "content": user_question
-            })
-            st.session_state['chat_messages'].append({
-                "role": "bot",
-                "content": result['answer']
-            })
-            # Save chat to file
-            with open(session_path, "w") as f:
-                json.dump(st.session_state['chat_messages'], f, indent=2)
-                # Clear input for next question
+        
+    with st.spinner("Thinking..."):
+        result = qa_chain.invoke({"question": user_question})
+        # Store messages in session
+        st.session_state['chat_messages'].append({
+            "role": "user",
+            "content": user_question
+        })
+        st.session_state['chat_messages'].append({
+            "role": "bot",
+            "content": result['answer']
+        })
+        # Save chat to file
+        with open(session_path, "w") as f:
+            json.dump(st.session_state['chat_messages'], f, indent=2)
+            # Clear input for next question
 st.session_state['text'] = ""
 # 🔄 Main logic
+session_path = os.path.join(sessions_dir, f"{st.session_state['session_id']}.json")
 if st.session_state['retriever'] is not None:
     qa_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
