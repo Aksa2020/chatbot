@@ -75,15 +75,42 @@ if upload_pdf is not None and st.session_state['vectorstore'] is None:
 llm = ChatGroq(groq_api_key=st.secrets["groq_api_key"],
                model_name="llama3-8b-8192",
                temperature=0)
-
 if st.session_state['retriever'] is not None:
-    qa_chain = ConversationalRetrievalChain.from_llm(llm=llm, retriever = st.session_state['retriever'], memory = st.session_state['memory'], return_source_documents= False)
+    qa_chain = ConversationalRetrievalChain.from_llm(
+        llm=llm,
+        retriever=st.session_state['retriever'],
+        memory=st.session_state['memory'],
+        return_source_documents=False
+    )
+
+    # 👉 Display chat history
+    if st.session_state['memory'].chat_memory.messages:
+        st.markdown("### Chat History")
+        for msg in st.session_state['memory'].chat_memory.messages:
+            if msg.type == "human":
+                st.markdown(f"**You:** {msg.content}")
+            elif msg.type == "ai":
+                st.markdown(f"**Bot:** {msg.content}")
+
+    # 👉 Input box for user question
     user_question = st.text_input("Ask your question:", key='text')
+
+    # 👉 Run QA chain and display answer
     if user_question:
         with st.spinner("Thinking...."):
             result = qa_chain.invoke({"question": user_question})
             st.markdown(f"**You:** {user_question}")
-            st.markdown(f"**Bot:** {result["answer"]}")
+            st.markdown(f"**Bot:** {result['answer']}")
+
+
+# if st.session_state['retriever'] is not None:
+#     qa_chain = ConversationalRetrievalChain.from_llm(llm=llm, retriever = st.session_state['retriever'], memory = st.session_state['memory'], return_source_documents= False)
+#     user_question = st.text_input("Ask your question:", key='text')
+#     if user_question:
+#         with st.spinner("Thinking...."):
+#             result = qa_chain.invoke({"question": user_question})
+#             st.markdown(f"**You:** {user_question}")
+#             st.markdown(f"**Bot:** {result["answer"]}")
 
 def del_vectordb(path):
     if os.path.exists(path):
