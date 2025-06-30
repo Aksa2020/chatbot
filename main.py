@@ -80,14 +80,14 @@ llm = ChatGroq(
 
 # --- Create QA Chain (before callback) ---
 
-# if st.session_state['retriever'] is not None:
-#     qa_chain = ConversationalRetrievalChain.from_llm(
-#         llm=llm,
-#         retriever=st.session_state['retriever'],
-#         memory=st.session_state['memory'],
-#         return_source_documents=False,
-#         condense_question_llm=llm
-#     )
+if st.session_state['retriever'] is not None:
+    qa_chain = ConversationalRetrievalChain.from_llm(
+        llm=llm,
+        retriever=st.session_state['retriever'],
+        memory=st.session_state['memory'],
+        return_source_documents=False,
+        condense_question_llm=llm
+    )
 
 # # --- Handle User Question ---
 # def handle_user_question():
