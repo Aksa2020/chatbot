@@ -89,10 +89,30 @@ llm = ChatGroq(
 #         condense_question_llm=llm
 #     )
 
-# --- Handle User Question ---
+# # --- Handle User Question ---
+# def handle_user_question():
+#     user_question = st.session_state['text']
+#     if not user_question.strip():
+#         return
+
+#     with st.spinner("Thinking..."):
+#         result = qa_chain.invoke({"question": user_question})
+#         st.session_state['chat_messages'].append({"role": "user", "content": user_question})
+#         st.session_state['chat_messages'].append({"role": "bot", "content": result['answer']})
+
+#         with open(session_path, "w") as f:
+#             json.dump(st.session_state['chat_messages'], f, indent=2)
+
+#     st.session_state['text'] = ""
+
 def handle_user_question():
     user_question = st.session_state['text']
     if not user_question.strip():
+        return
+
+    qa_chain = st.session_state.get('qa_chain')
+    if not qa_chain:
+        st.error("❌ QA chain is not initialized. Please upload a PDF first.")
         return
 
     with st.spinner("Thinking..."):
@@ -104,6 +124,7 @@ def handle_user_question():
             json.dump(st.session_state['chat_messages'], f, indent=2)
 
     st.session_state['text'] = ""
+
 
 # --- UI: Sidebar ---
 with st.sidebar:
